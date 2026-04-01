@@ -6,7 +6,8 @@ import AutoScroller from '@/components/AutoScroller';
 export const dynamic = 'force-dynamic';
 
 export default async function HomePage({ searchParams }) {
-  const query = searchParams?.q || '';
+  const params = await searchParams;
+  const query = params?.q || '';
   const discoveryMovies = await getDiscoveryMovies().catch(() => []);
   let searchResults = [];
   let vibeMatches = [];
