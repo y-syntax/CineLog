@@ -1,91 +1,109 @@
-"use client";
-
-import { useState } from 'react';
-import { searchMovies } from '@/app/actions/movieApi';
+import { searchMovies, getDiscoveryMovies } from '@/app/actions/movieApi';
+import { getVibeMatch } from '@/app/actions/vibeMatch';
 import MovieCard from '@/components/MovieCard';
+import AutoScroller from '@/components/AutoScroller';
 
-export default function HomePage() {
-  const [query, setQuery] = useState('');
-  const [movies, setMovies] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+export const dynamic = 'force-dynamic';
 
-  const handleSearch = async (e) => {
-    e.preventDefault();
-    if (!query.trim()) return;
-    
-    setLoading(true);
-    setError(null);
-    try {
-      const results = await searchMovies(query);
-      setMovies(results || []);
-    } catch (err) {
-      setError(err.message || 'Failed to search movies. Check API Keys.');
-    } finally {
-      setLoading(false);
-    }
-  };
+export default async function HomePage({ searchParams }) {
+  const query = searchParams?.q || '';
+  const discoveryMovies = await getDiscoveryMovies().catch(() => []);
+  let searchResults = [];
+  let vibeMatches = [];
+  
+  if (query) {
+    [searchResults, vibeMatches] = await Promise.all([
+      searchMovies(query).catch(() => []),
+      getVibeMatch().catch(() => ({ matches: [] }))
+    ]);
+  }
+
+  const recommendations = vibeMatches?.matches || [];
 
   return (
-    <div className="space-y-16 fade-in">
+    <div className="space-y-20 py-10 fade-in">
       {/* Hero Section */}
-      <div className="text-center max-w-4xl mx-auto space-y-6 md:space-y-8 pt-4 md:pt-10">
-        <h1 className="text-4xl md:text-7xl font-extrabold tracking-tight pb-2 leading-[1.1]">
-          Discover your next <br className="hidden md:block"/>
-          <span className="gradient-text">masterpiece</span>
+      <div className="text-center max-w-4xl mx-auto space-y-8 z-10 px-4 relative">
+        <h1 className="text-5xl md:text-8xl font-black tracking-tight leading-none">
+          Cine<span className="gradient-text">Log</span>
         </h1>
-        <p className="text-base md:text-xl text-slate-400 font-medium max-w-2xl mx-auto px-4">
-          Search the cinematic universe, log personal reviews, and let AI reveal your perfect viewing vibe.
+        <p className="text-lg md:text-2xl text-slate-400 font-medium max-w-2xl mx-auto">
+          Your personal cinematic journal. Discover, review, and match your vibe.
         </p>
         
         {/* Search Bar */}
-        <form onSubmit={handleSearch} className="relative max-w-2xl mx-auto mt-8 md:mt-12 group z-10 px-4 md:px-0">
+        <form action="/" className="relative max-w-2xl mx-auto mt-12 group">
           <div className="absolute -inset-1.5 bg-gradient-to-r from-cyan-400 via-indigo-500 to-purple-600 rounded-2xl blur-md opacity-25 group-hover:opacity-60 transition duration-1000 group-hover:duration-300"></div>
-          <div className="relative flex flex-col sm:flex-row items-center bg-slate-900 border border-white/10 rounded-2xl overflow-hidden shadow-2xl transition-all group-hover:border-white/20">
-            <div className="relative flex-1 w-full">
-              <svg xmlns="http://www.w3.org/2000/svg" className="absolute left-6 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <div className="relative flex items-center bg-slate-900 border border-white/10 rounded-2xl overflow-hidden shadow-2xl transition-all group-hover:border-white/20">
+            <div className="relative flex-1">
+              <svg xmlns="http://www.w3.org/2000/svg" className="absolute left-6 top-1/2 -translate-y-1/2 h-6 w-6 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
               <input 
+                name="q"
                 type="text" 
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                placeholder="Search movies..." 
-                className="w-full bg-transparent pl-14 pr-6 py-4 md:py-5 text-base md:text-lg text-white focus:outline-none placeholder-slate-500 tracking-wide"
+                defaultValue={query}
+                placeholder="Search the cinematic universe..." 
+                className="w-full bg-transparent pl-16 pr-6 py-5 md:py-6 text-lg md:text-xl text-white focus:outline-none placeholder-slate-500 tracking-wide"
               />
             </div>
             <button 
               type="submit" 
-              disabled={loading}
-              className="w-full sm:w-auto px-10 py-4 md:py-5 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 font-bold text-white transition-all disabled:opacity-50 disabled:grayscale flex-shrink-0"
+              className="px-10 py-5 md:py-6 bg-indigo-600 hover:bg-indigo-500 font-bold text-white transition-all flex-shrink-0"
             >
-              {loading ? (
-                <span className="flex items-center justify-center gap-2">
-                  <div className="w-4 h-4 rounded-full border-2 border-white/30 border-t-white animate-spin"></div>
-                  Searching...
-                </span>
-              ) : 'Search'}
+              Search
             </button>
           </div>
         </form>
       </div>
 
-      {/* Error Message */}
-      {error && (
-        <div className="bg-red-500/10 border border-red-500/30 text-red-400 p-5 rounded-2xl text-center max-w-2xl mx-auto font-medium">
-          {error}
+      {/* Discovery Section (Visual Marquee) */}
+      {!query && (
+        <div className="space-y-4">
+          <div className="px-6 relative z-10">
+            <h2 className="text-2xl font-bold text-slate-300 tracking-wider uppercase text-sm">Random <span className="text-indigo-400">Discoveries</span></h2>
+          </div>
+          <AutoScroller movies={discoveryMovies} />
         </div>
       )}
 
-      {/* Results Grid */}
-      {movies.length > 0 && (
-        <div className="fade-in">
-          <h2 className="text-2xl font-bold mb-8 text-slate-200">Search Results</h2>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 gap-y-10">
-            {movies.map((movie) => (
-              <MovieCard key={movie.id} movie={movie} />
-            ))}
-          </div>
+      {/* Results & AI Recommendations */}
+      {query && (
+        <div className="max-w-7xl mx-auto px-6 space-y-24 pb-20">
+          {/* Main Search Results */}
+          <section className="fade-in">
+            <div className="flex justify-between items-end mb-10 border-b border-white/5 pb-6">
+              <h2 className="text-3xl font-black text-white italic">Search Results</h2>
+              <p className="text-slate-500 font-medium tracking-widest uppercase text-xs">Matching "{query}"</p>
+            </div>
+            
+            {searchResults.length === 0 ? (
+              <div className="text-center py-20 bg-slate-800/10 border border-white/5 rounded-3xl">
+                <h3 className="text-2xl font-bold text-slate-500">No exact matches. Check your vibe below.</h3>
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 gap-y-12">
+                {searchResults.slice(0, 10).map((movie) => (
+                  <MovieCard key={movie.id} movie={movie} />
+                ))}
+              </div>
+            )}
+          </section>
+
+          {/* AI Vibe Matches */}
+          {recommendations.length > 0 && (
+            <section className="fade-in">
+              <div className="flex justify-between items-end mb-10 border-b border-indigo-500/20 pb-6">
+                <h2 className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-400 italic">Similar Vibes</h2>
+                <p className="text-indigo-400/60 font-medium tracking-widest uppercase text-xs">AI-Curated for You</p>
+              </div>
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 gap-y-12">
+                {recommendations.map((movie) => (
+                  <MovieCard key={movie.id} movie={movie} />
+                ))}
+              </div>
+            </section>
+          )}
         </div>
       )}
     </div>

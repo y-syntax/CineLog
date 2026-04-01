@@ -1,7 +1,5 @@
-export const dynamic = 'force-dynamic';
 import { getReviews } from '@/app/actions/dbActions';
 import MovieCard from '@/components/MovieCard';
-import VibeMatchButton from './VibeMatchButton';
 
 export default async function MyMoviesPage() {
   const reviews = await getReviews().catch(() => []);
@@ -16,11 +14,6 @@ export default async function MyMoviesPage() {
           <p className="text-slate-400 text-base md:text-lg font-medium">
             You've logged {reviews.length} cinematic experiences.
           </p>
-        </div>
-        
-        {/* Vibe Match Button */}
-        <div className="pb-0 md:pb-2">
-           <VibeMatchButton />
         </div>
       </div>
 
