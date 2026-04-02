@@ -15,7 +15,7 @@ export default function ReviewForm({ movieId, movieTitle, posterPath, existingRe
     setLoading(true);
     setError(null);
     try {
-      await saveReview({
+      const result = await saveReview({
         id: existingReview?.id,
         movie_id: Number(movieId),
         movie_title: movieTitle,
@@ -23,10 +23,15 @@ export default function ReviewForm({ movieId, movieTitle, posterPath, existingRe
         rating: Number(rating),
         review_text: reviewText
       });
-      router.refresh();
-      router.push('/my-movies');
+      
+      if (result.success) {
+        router.refresh();
+        router.push('/my-movies');
+      } else {
+        setError(result.error);
+      }
     } catch (err) {
-      setError(err.message || 'Failed to save review. Ensure you are authorized.');
+      setError(err.message || 'An unexpected error occurred.');
     } finally {
       setLoading(false);
     }
@@ -37,9 +42,14 @@ export default function ReviewForm({ movieId, movieTitle, posterPath, existingRe
     if (!confirm('Are you sure you want to delete this review?')) return;
     setLoading(true);
     try {
-      await deleteReview(existingReview.id, Number(movieId));
-      router.refresh();
-      router.push('/my-movies');
+      const result = await deleteReview(existingReview.id, Number(movieId));
+      if (result.success) {
+        router.refresh();
+        router.push('/my-movies');
+      } else {
+        setError(result.error);
+        setLoading(false);
+      }
     } catch (err) {
       setError(err.message);
       setLoading(false);
