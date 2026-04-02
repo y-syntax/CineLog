@@ -2,13 +2,31 @@ import { searchMovies, getDiscoveryMovies } from '@/app/actions/movieApi';
 import { getVibeMatch } from '@/app/actions/vibeMatch';
 import MovieCard from '@/components/MovieCard';
 import AutoScroller from '@/components/AutoScroller';
+import { getExclusions } from '@/app/actions/userExclusions';
+import { getReviews } from '@/app/actions/dbActions';
 
 export const dynamic = 'force-dynamic';
 
 export default async function HomePage({ searchParams }) {
   const params = await searchParams;
   const query = params?.q || '';
-  const discoveryMovies = await getDiscoveryMovies().catch(() => []);
+  
+  // Fetch discovery movies, exclusions, and reviews in parallel
+  const [initialDiscovery, exclusions, reviews] = await Promise.all([
+    getDiscoveryMovies().catch(() => []),
+    getExclusions().catch(() => []),
+    getReviews().catch(() => [])
+  ]);
+
+  // Filter out movies that are either excluded or already reviewed
+  const reviewedIds = reviews.map(r => Number(r.movie_id));
+  const excludedIds = exclusions.map(id => Number(id));
+  
+  const discoveryMovies = initialDiscovery.filter(movie => 
+    !excludedIds.includes(Number(movie.id)) && 
+    !reviewedIds.includes(Number(movie.id))
+  );
+
   let searchResults = [];
   let vibeMatches = [];
   
