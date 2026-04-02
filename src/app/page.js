@@ -47,7 +47,7 @@ export default async function HomePage({ searchParams }) {
           Cine<span className="gradient-text">Log</span>
         </h1>
         <p className="text-lg md:text-2xl text-slate-400 font-medium max-w-2xl mx-auto px-4">
-          Documentation of your personal cinematic journey. Discover gems, log reviews, and curate your vibe.
+          Documentation of my personal cinematic journey. Discover gems, log reviews, and curate your vibe.
         </p>
       </div>
 

@@ -12,9 +12,9 @@ export default function AutoScroller({ movies }) {
 
   return (
     <div className="relative w-full overflow-hidden py-10 my-4 group">
-       {/* Soft Vignette Overlays */}
-       <div className="absolute left-0 top-0 bottom-0 w-32 bg-gradient-to-r from-slate-950 to-transparent z-10 pointer-events-none" />
-       <div className="absolute right-0 top-0 bottom-0 w-32 bg-gradient-to-l from-slate-950 to-transparent z-10 pointer-events-none" />
+        {/* Deep Cinematic Vignette Overlays */}
+        <div className="absolute left-0 top-0 bottom-0 w-64 bg-gradient-to-r from-slate-950 via-slate-950/40 to-transparent z-10 pointer-events-none" />
+        <div className="absolute right-0 top-0 bottom-0 w-64 bg-gradient-to-l from-slate-950 via-slate-950/40 to-transparent z-10 pointer-events-none" />
 
         <div 
           className={`flex gap-6 animate-marquee ${isHovered ? 'pause-animation' : ''}`}
