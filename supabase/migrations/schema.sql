@@ -74,3 +74,8 @@ CREATE POLICY "Users can insert their own profile." ON public.profiles
 -- Allow users to update their own profile
 CREATE POLICY "Users can update their own profile." ON public.profiles
   FOR UPDATE USING (auth.uid() = id);
+
+-- Link reviews to profiles for easier joining
+ALTER TABLE public.reviews
+  ADD CONSTRAINT reviews_user_id_fkey
+  FOREIGN KEY (user_id) REFERENCES public.profiles(id);
