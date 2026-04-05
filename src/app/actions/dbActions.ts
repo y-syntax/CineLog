@@ -11,17 +11,13 @@ export async function getReviews() {
 
     const { data, error } = await supabase
       .from("reviews")
-      .select("*, profiles(full_name)")
+      .select("*") // Simplified to verify if join was the problem
       .eq("user_id", userData.user.id)
       .order("created_at", { ascending: false });
 
     if (error) throw new Error(error.message);
     
-    // Map data to include the name more easily
-    return data.map(r => ({
-      ...r,
-      reviewer_name: r.profiles?.full_name || 'Anonymous'
-    }));
+    return data;
   } catch (err) {
     console.error("getReviews error:", err);
     return [];
