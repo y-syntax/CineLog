@@ -61,12 +61,13 @@ export async function saveProfile(formData: FormData) {
   // Check if this is the first user (admin)
   const isAdmin = user.email === "yadusrajiv@gmail.com";
 
-  const { error } = await supabase.from('profiles').insert({
+  const { error } = await supabase.from('profiles').upsert({
     id: user.id,
     full_name,
     email: user.email,
     is_approved: isAdmin, // Admin is auto-approved
-    is_admin: isAdmin
+    is_admin: isAdmin,
+    updated_at: new Date().toISOString()
   });
 
   if (error) {

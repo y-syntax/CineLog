@@ -31,7 +31,8 @@ export default async function MyMoviesPage() {
                 id: review.movie_id,
                 title: review.movie_title,
                 poster_path: review.poster_path,
-                rating: review.rating
+                rating: review.rating,
+                reviewer_name: review.reviewer_name
               }} 
             />
           ))}
