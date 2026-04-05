@@ -41,6 +41,19 @@ export default function LoginPage() {
           </div>
         )}
         
+        {isSignUp && (
+          <div className="space-y-2">
+            <label className="text-sm font-bold text-slate-300 tracking-wide uppercase">Full Name</label>
+            <input 
+              type="text" 
+              name="full_name"
+              required 
+              className="w-full bg-slate-950/50 border border-white/10 rounded-xl px-5 py-4 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all font-medium"
+              placeholder="John Doe"
+            />
+          </div>
+        )}
+
         <div className="space-y-2">
           <label className="text-sm font-bold text-slate-300 tracking-wide uppercase">Email Address</label>
           <input 
