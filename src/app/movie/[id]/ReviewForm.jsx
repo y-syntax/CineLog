@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { saveReview, deleteReview } from '@/app/actions/dbActions';
 import { useRouter } from 'next/navigation';
 
-export default function ReviewForm({ movieId, movieTitle, posterPath, existingReview }) {
+export default function ReviewForm({ movieId, movieTitle, posterPath, existingReview, onCancel, onSuccess }) {
   const [rating, setRating] = useState(existingReview?.rating || 10);
   const [reviewText, setReviewText] = useState(existingReview?.review_text || '');
   const [loading, setLoading] = useState(false);
@@ -25,8 +25,12 @@ export default function ReviewForm({ movieId, movieTitle, posterPath, existingRe
       });
       
       if (result.success) {
-        router.refresh();
-        router.push('/my-movies');
+        if (onSuccess) {
+          onSuccess();
+        } else {
+          router.refresh();
+          router.push('/my-movies');
+        }
       } else {
         setError(result.error);
       }
@@ -44,8 +48,12 @@ export default function ReviewForm({ movieId, movieTitle, posterPath, existingRe
     try {
       const result = await deleteReview(existingReview.id, Number(movieId));
       if (result.success) {
-        router.refresh();
-        router.push('/my-movies');
+        if (onSuccess) {
+          onSuccess();
+        } else {
+          router.refresh();
+          router.push('/my-movies');
+        }
       } else {
         setError(result.error);
         setLoading(false);
@@ -57,10 +65,25 @@ export default function ReviewForm({ movieId, movieTitle, posterPath, existingRe
   }
 
   return (
-    <form onSubmit={handleSave} className="space-y-6 bg-slate-900/50 p-5 md:p-8 rounded-3xl border border-white/5 backdrop-blur-xl shadow-2xl relative group overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/5 to-purple-500/5 z-0" />
+    <form onSubmit={handleSave} className="space-y-6 bg-slate-900 p-6 md:p-8 rounded-3xl border border-white/10 shadow-2xl relative overflow-hidden">
+      <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/10 to-purple-500/10 z-0" />
       
       <div className="relative z-10 space-y-6">
+        <div className="flex justify-between items-center mb-2">
+          <h3 className="text-xl font-bold text-white">{existingReview ? 'Update Your Review' : 'Add a Review'}</h3>
+          {onCancel && (
+            <button 
+              type="button" 
+              onClick={onCancel}
+              className="text-slate-400 hover:text-white transition-colors"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          )}
+        </div>
+
         {error && <div className="text-red-400 bg-red-500/10 p-4 rounded-xl text-sm border border-red-500/20">{error}</div>}
         
         <div className="space-y-3">
@@ -108,6 +131,16 @@ export default function ReviewForm({ movieId, movieTitle, posterPath, existingRe
               className="px-6 py-4 bg-red-500/10 hover:bg-red-500/20 text-red-400 font-bold rounded-xl transition-all disabled:opacity-50"
             >
               Delete
+            </button>
+          )}
+          
+          {onCancel && (
+            <button 
+              type="button" 
+              onClick={onCancel}
+              className="sm:hidden px-6 py-4 bg-white/5 hover:bg-white/10 text-slate-300 font-bold rounded-xl transition-all"
+            >
+              Cancel
             </button>
           )}
         </div>

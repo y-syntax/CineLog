@@ -40,14 +40,24 @@ export async function getReviewByMovieId(movieId: number | string) {
 
     const { data, error } = await supabase
       .from("reviews")
-      .select("*")
+      .select(`
+        *,
+        profiles (
+          full_name
+        )
+      `)
       .eq("movie_id", Number(movieId))
       .eq("user_id", userData.user.id)
       .limit(1)
       .maybeSingle();
 
     if (error) throw new Error(error.message);
-    return data || null;
+    if (!data) return null;
+    
+    return {
+      ...data,
+      reviewer_name: data.profiles?.full_name || 'Anonymous'
+    };
   } catch (err) {
     console.error("getReviewByMovieId error:", err);
     return null;
@@ -118,5 +128,31 @@ export async function deleteReview(id: string, movieId?: number) {
   } catch (err) {
     console.error("deleteReview error:", err);
     return { success: false, error: err.message || "Failed to delete review." };
+  }
+}
+
+export async function getAllReviewsForMovie(movieId: number | string) {
+  try {
+    const supabase = await createClient();
+    const { data, error } = await supabase
+      .from("reviews")
+      .select(`
+        *,
+        profiles (
+          full_name
+        )
+      `)
+      .eq("movie_id", Number(movieId))
+      .order("created_at", { ascending: false });
+
+    if (error) throw new Error(error.message);
+    
+    return data.map(r => ({
+      ...r,
+      reviewer_name: r.profiles?.full_name || 'Anonymous'
+    }));
+  } catch (err) {
+    console.error("getAllReviewsForMovie error:", err);
+    return [];
   }
 }
