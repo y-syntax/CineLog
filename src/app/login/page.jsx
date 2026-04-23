@@ -15,7 +15,10 @@ export default function LoginPage() {
     const formData = new FormData(e.currentTarget);
     try {
       const res = isSignUp ? await signup(formData) : await login(formData);
-      if (res?.error) setError(res.error);
+      if (res?.error) {
+        setError(res.error);
+        setLoading(false);
+      }
     } catch (err) {
       if (err.message && err.message.includes("NEXT_REDIRECT")) {
         return;
@@ -88,7 +91,11 @@ export default function LoginPage() {
           {isSignUp ? 'Already have an account?' : "Don't have an account?"}
           <button 
             type="button"
-            onClick={() => setIsSignUp(!isSignUp)}
+            onClick={() => {
+              setIsSignUp(!isSignUp);
+              setError(null);
+              setLoading(false);
+            }}
             className="ml-2 text-indigo-400 hover:text-indigo-300 font-bold underline"
           >
             {isSignUp ? 'Sign In' : 'Sign Up'}
