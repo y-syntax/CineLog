@@ -27,10 +27,6 @@ export async function login(formData: FormData) {
     redirect("/setup");
   }
 
-  if (!profile.is_approved && !profile.is_admin) {
-    redirect("/pending");
-  }
-  
   redirect("/");
 }
 
@@ -53,17 +49,18 @@ export async function signup(formData: FormData) {
       id: data.user.id,
       full_name,
       email,
-      is_approved: isAdmin,
+      is_approved: true, // Auto-approve everyone for open community
       is_admin: isAdmin,
       updated_at: new Date().toISOString()
     });
 
     if (!isAdmin) {
+      // Optional: still notify admin of new users if desired
       await notifyAdminOfNewUser(full_name, email);
-      redirect("/pending");
     }
   }
 
+  // Redirect to home. If email verification is on, Supabase will handle the lock/auth state.
   redirect("/");
 }
 
@@ -76,14 +73,13 @@ export async function saveProfile(formData: FormData) {
     return { error: "Not authenticated" };
   }
 
-  // Check if this is the first user (admin)
   const isAdmin = user.email === "yadusrajiv@gmail.com";
 
   const { error } = await supabase.from('profiles').upsert({
     id: user.id,
     full_name,
     email: user.email,
-    is_approved: isAdmin, // Admin is auto-approved
+    is_approved: true, // Auto-approve for open community
     is_admin: isAdmin,
     updated_at: new Date().toISOString()
   });
@@ -92,13 +88,7 @@ export async function saveProfile(formData: FormData) {
     return { error: error.message };
   }
 
-  if (isAdmin) {
-    redirect("/");
-  } else {
-    // Notify admin
-    await notifyAdminOfNewUser(full_name, user.email || "");
-    redirect("/pending");
-  }
+  redirect("/");
 }
 
 export async function approveUser(userId: string) {

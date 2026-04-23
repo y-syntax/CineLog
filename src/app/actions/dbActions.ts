@@ -32,6 +32,36 @@ export async function getReviews() {
   }
 }
 
+export async function getCommunityReviews() {
+  try {
+    const supabase = await createClient();
+    const { data, error } = await supabase
+      .from("reviews")
+      .select(`
+        *,
+        profiles (
+          full_name
+        ),
+        review_likes (
+          id
+        )
+      `)
+      .order("created_at", { ascending: false })
+      .limit(50);
+
+    if (error) throw new Error(error.message);
+    
+    return data.map(r => ({
+      ...r,
+      reviewer_name: r.profiles?.full_name || 'Anonymous',
+      likes_count: r.review_likes?.length || 0
+    }));
+  } catch (err) {
+    console.error("getCommunityReviews error:", err);
+    return [];
+  }
+}
+
 export async function getReviewByMovieId(movieId: number | string) {
   try {
     const supabase = await createClient();
@@ -70,17 +100,6 @@ export async function saveReview(reviewData: { id?: string, movie_id: number, mo
     const { data: userData } = await supabase.auth.getUser();
     if (!userData?.user) return { success: false, error: "Unauthorized. Please Login." };
 
-    // Check if user is approved
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('is_approved, is_admin')
-      .eq('id', userData.user.id)
-      .single();
-
-    if (!profile?.is_approved && !profile?.is_admin) {
-      return { success: false, error: "Your account is awaiting admin approval." };
-    }
-
     if (reviewData.id) {
       const { error } = await supabase.from("reviews").update({
         rating: reviewData.rating,
@@ -100,6 +119,7 @@ export async function saveReview(reviewData: { id?: string, movie_id: number, mo
     }
     
     revalidatePath("/my-movies");
+    revalidatePath("/community");
     revalidatePath(`/movie/${reviewData.movie_id}`);
     return { success: true };
   } catch (err) {
@@ -123,6 +143,7 @@ export async function deleteReview(id: string, movieId?: number) {
     if (error) throw new Error(error.message);
     
     revalidatePath("/my-movies");
+    revalidatePath("/community");
     if (movieId) revalidatePath(`/movie/${movieId}`);
     return { success: true };
   } catch (err) {
@@ -140,6 +161,9 @@ export async function getAllReviewsForMovie(movieId: number | string) {
         *,
         profiles (
           full_name
+        ),
+        review_likes (
+          id
         )
       `)
       .eq("movie_id", Number(movieId))
@@ -149,7 +173,8 @@ export async function getAllReviewsForMovie(movieId: number | string) {
     
     return data.map(r => ({
       ...r,
-      reviewer_name: r.profiles?.full_name || 'Anonymous'
+      reviewer_name: r.profiles?.full_name || 'Anonymous',
+      likes_count: r.review_likes?.length || 0
     }));
   } catch (err) {
     console.error("getAllReviewsForMovie error:", err);

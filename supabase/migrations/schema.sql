@@ -79,3 +79,27 @@ CREATE POLICY "Users can update their own profile." ON public.profiles
 ALTER TABLE public.reviews
   ADD CONSTRAINT reviews_user_id_fkey
   FOREIGN KEY (user_id) REFERENCES public.profiles(id);
+
+-- New Table: review_likes
+CREATE TABLE IF NOT EXISTS public.review_likes (
+  id uuid default gen_random_uuid() primary key,
+  created_at timestamp with time zone default timezone('utc'::text, now()) not null,
+  user_id uuid references auth.users not null,
+  review_id uuid references public.reviews on delete cascade not null,
+  UNIQUE(user_id, review_id)
+);
+
+-- Turn on Row Level Security for likes
+ALTER TABLE public.review_likes ENABLE ROW LEVEL SECURITY;
+
+-- Allow public read access to likes count
+CREATE POLICY "Likes are viewable by everyone." ON public.review_likes
+  FOR SELECT USING (true);
+
+-- Allow authenticated users to like a review
+CREATE POLICY "Users can create their own likes." ON public.review_likes
+  FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+-- Allow authenticated users to unlike a review
+CREATE POLICY "Users can delete their own likes." ON public.review_likes
+  FOR DELETE USING (auth.uid() = user_id);

@@ -1,4 +1,4 @@
-"use client";
+import LikeButton from "@/components/LikeButton";
 
 export default function ReviewCard({ review, isCurrentUser = false }) {
   const date = new Date(review.created_at).toLocaleDateString('en-US', {
@@ -29,10 +29,14 @@ export default function ReviewCard({ review, isCurrentUser = false }) {
         </div>
       </div>
       
-      <div className="relative">
+      <div className="relative mb-4">
         <p className="text-slate-300 leading-relaxed text-sm md:text-base whitespace-pre-wrap italic">
           "{review.review_text}"
         </p>
+      </div>
+
+      <div className="flex justify-end border-t border-white/5 pt-4">
+        <LikeButton reviewId={review.id} initialLikes={review.likes_count} />
       </div>
     </div>
   );
