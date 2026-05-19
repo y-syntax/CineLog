@@ -21,7 +21,7 @@ export default function AnimatedHero({ featuredReview, defaultBackdrop = "https:
       >
         <div 
           className="w-full h-full bg-cover bg-center bg-no-repeat opacity-60"
-          style={{ backgroundImage: `url(${defaultBackdrop})` }}
+          style={{ backgroundImage: `url(${backdropUrl})` }}
         />
       </motion.div>
 
