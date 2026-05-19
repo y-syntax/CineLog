@@ -15,7 +15,7 @@ export async function login(formData: FormData) {
     return { error: error.message };
   }
 
-  // Check if profile exists and is approved
+  // Check if profile exists
   const { data: profile } = await supabase
     .from('profiles')
     .select('*')
@@ -23,7 +23,23 @@ export async function login(formData: FormData) {
     .single();
 
   if (!profile) {
-    redirect("/setup");
+    // If we have full_name in metadata (from signup), create profile now since we are authenticated
+    const fullName = data.user.user_metadata?.full_name;
+    if (fullName) {
+      const isAdmin = email === "yadusrajiv@gmail.com";
+      await supabase.from('profiles').upsert({
+        id: data.user.id,
+        full_name: fullName,
+        email: email,
+        is_approved: true, // Auto-approve everyone for open community
+        is_admin: isAdmin,
+        updated_at: new Date().toISOString()
+      });
+      redirect("/");
+    } else {
+      // Fallback if no name found
+      redirect("/setup");
+    }
   }
 
   redirect("/");
@@ -35,28 +51,25 @@ export async function signup(formData: FormData) {
   const full_name = formData.get("full_name") as string;
   
   const supabase = await createClient();
-  const { error, data } = await supabase.auth.signUp({ email, password });
+  // Pass full_name in user metadata so it can be used upon first login
+  const { error, data } = await supabase.auth.signUp({ 
+    email, 
+    password,
+    options: {
+      data: {
+        full_name
+      }
+    }
+  });
   
   if (error) {
     return { error: error.message };
   }
 
-  if (data.user) {
-    // Create profile immediately
-    const isAdmin = email === "yadusrajiv@gmail.com";
-    await supabase.from('profiles').upsert({
-      id: data.user.id,
-      full_name,
-      email,
-      is_approved: true, // Auto-approve everyone for open community
-      is_admin: isAdmin,
-      updated_at: new Date().toISOString()
-    });
-  }
-
   // Redirect to home. If email verification is on, Supabase will handle the lock/auth state.
   redirect("/");
 }
+
 
 export async function saveProfile(formData: FormData) {
   const full_name = formData.get("full_name") as string;
