@@ -85,7 +85,7 @@ export default async function HomePage({ searchParams }) {
               </div>
               <button 
                 type="submit" 
-                className="px-10 py-6 bg-white hover:bg-slate-200 text-black font-black uppercase tracking-widest transition-all flex-shrink-0"
+                className="px-10 py-6 bg-white hover:bg-cinema-red hover:text-white text-black font-black uppercase tracking-widest transition-all flex-shrink-0"
               >
                 Search
               </button>
