@@ -7,6 +7,7 @@ CREATE TABLE IF NOT EXISTS public.reviews (
   poster_path text,
   rating numeric(3,1) check (rating >= 1 and rating <= 10) not null,
   review_text text,
+  genre_ids integer[],
   UNIQUE(user_id, movie_id)
 );
 

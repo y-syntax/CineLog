@@ -4,7 +4,7 @@ import ReviewCard from './ReviewCard';
 import ReviewForm from './ReviewForm';
 import { useRouter } from 'next/navigation';
 
-export default function ReviewsSection({ reviews, existingReview, movieId, movieTitle, posterPath }) {
+export default function ReviewsSection({ reviews, existingReview, movieId, movieTitle, posterPath, genreIds }) {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [showAll, setShowAll] = useState(false);
   const router = useRouter();
@@ -63,6 +63,7 @@ export default function ReviewsSection({ reviews, existingReview, movieId, movie
             movieId={movieId}
             movieTitle={movieTitle}
             posterPath={posterPath}
+            genreIds={genreIds}
             existingReview={existingReview}
             onCancel={() => setIsFormOpen(false)}
             onSuccess={handleSuccess}

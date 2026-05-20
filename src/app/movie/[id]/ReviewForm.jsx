@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { saveReview, deleteReview } from '@/app/actions/dbActions';
 import { useRouter } from 'next/navigation';
 
-export default function ReviewForm({ movieId, movieTitle, posterPath, existingReview, onCancel, onSuccess }) {
+export default function ReviewForm({ movieId, movieTitle, posterPath, genreIds, existingReview, onCancel, onSuccess }) {
   const [rating, setRating] = useState(existingReview?.rating || 10);
   const [reviewText, setReviewText] = useState(existingReview?.review_text || '');
   const [loading, setLoading] = useState(false);
@@ -20,6 +20,7 @@ export default function ReviewForm({ movieId, movieTitle, posterPath, existingRe
         movie_id: Number(movieId),
         movie_title: movieTitle,
         poster_path: posterPath,
+        genre_ids: genreIds,
         rating: Number(rating),
         review_text: reviewText
       });

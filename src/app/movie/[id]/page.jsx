@@ -92,6 +92,7 @@ export default async function MoviePage({ params }) {
               movieId={movie.id}
               movieTitle={movie.title}
               posterPath={movie.poster_path}
+              genreIds={movie.genres?.map(g => g.id)}
             />
           ) : (
             <div className="bg-red-500/10 p-8 rounded-[2rem] border border-red-500/20 text-red-400 text-center">

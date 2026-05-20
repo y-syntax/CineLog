@@ -32,10 +32,10 @@ export async function getReviews() {
   }
 }
 
-export async function getCommunityReviews() {
+export async function getCommunityReviews(options?: { sortBy?: string, minRating?: number, genreId?: number }) {
   try {
     const supabase = await createClient();
-    const { data, error } = await supabase
+    let query = supabase
       .from("reviews")
       .select(`
         *,
@@ -45,17 +45,37 @@ export async function getCommunityReviews() {
         review_likes (
           id
         )
-      `)
-      .order("created_at", { ascending: false })
-      .limit(50);
+      `);
+
+    if (options?.minRating) {
+      query = query.gte("rating", options.minRating);
+    }
+    
+    if (options?.genreId) {
+      query = query.contains("genre_ids", [options.genreId]);
+    }
+
+    if (options?.sortBy === 'rating') {
+      query = query.order("rating", { ascending: false });
+    } else if (options?.sortBy !== 'likes') {
+      query = query.order("created_at", { ascending: false });
+    }
+
+    const { data, error } = await query.limit(150);
 
     if (error) throw new Error(error.message);
     
-    return data.map(r => ({
+    let results = data.map(r => ({
       ...r,
       reviewer_name: r.profiles?.full_name || 'Anonymous',
       likes_count: r.review_likes?.length || 0
     }));
+
+    if (options?.sortBy === 'likes') {
+      results.sort((a, b) => b.likes_count - a.likes_count);
+    }
+
+    return results;
   } catch (err) {
     console.error("getCommunityReviews error:", err);
     return [];
@@ -94,7 +114,7 @@ export async function getReviewByMovieId(movieId: number | string) {
   }
 }
 
-export async function saveReview(reviewData: { id?: string, movie_id: number, movie_title: string, poster_path?: string, rating: number, review_text: string }) {
+export async function saveReview(reviewData: { id?: string, movie_id: number, movie_title: string, poster_path?: string, rating: number, review_text: string, genre_ids?: number[] }) {
   try {
     const supabase = await createClient();
     const { data: userData } = await supabase.auth.getUser();
@@ -103,7 +123,8 @@ export async function saveReview(reviewData: { id?: string, movie_id: number, mo
     if (reviewData.id) {
       const { error } = await supabase.from("reviews").update({
         rating: reviewData.rating,
-        review_text: reviewData.review_text
+        review_text: reviewData.review_text,
+        genre_ids: reviewData.genre_ids || []
       }).eq("id", reviewData.id).eq("user_id", userData.user.id);
       if (error) throw new Error(error.message);
     } else {
@@ -113,7 +134,8 @@ export async function saveReview(reviewData: { id?: string, movie_id: number, mo
         movie_title: reviewData.movie_title,
         poster_path: reviewData.poster_path,
         rating: reviewData.rating,
-        review_text: reviewData.review_text
+        review_text: reviewData.review_text,
+        genre_ids: reviewData.genre_ids || []
       });
       if (error) throw new Error(error.message);
     }
