@@ -53,9 +53,9 @@ export default function CommunityFilters() {
           onChange={(e) => updateFilters('sort', e.target.value)}
           className="bg-black/20 border border-white/10 text-white text-sm font-medium rounded-xl pl-4 pr-10 py-2.5 focus:ring-2 focus:ring-cinema-red focus:outline-none appearance-none cursor-pointer backdrop-blur-md hover:bg-white/5 transition-all shadow-lg"
         >
-          <option value="latest">Latest Reviews</option>
-          <option value="rating">Highest Rated</option>
-          <option value="likes">Most Liked</option>
+          <option className="bg-slate-900 text-white" value="latest">Latest Reviews</option>
+          <option className="bg-slate-900 text-white" value="rating">Highest Rated</option>
+          <option className="bg-slate-900 text-white" value="likes">Most Liked</option>
         </select>
         <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
           ▼
@@ -70,10 +70,10 @@ export default function CommunityFilters() {
           onChange={(e) => updateFilters('min', e.target.value)}
           className="bg-black/20 border border-white/10 text-white text-sm font-medium rounded-xl pl-4 pr-10 py-2.5 focus:ring-2 focus:ring-cinema-red focus:outline-none appearance-none cursor-pointer backdrop-blur-md hover:bg-white/5 transition-all shadow-lg"
         >
-          <option value="all">All Ratings</option>
-          <option value="8">8+ Masterpieces</option>
-          <option value="9">9+ Masterpieces</option>
-          <option value="10">10/10 Perfect</option>
+          <option className="bg-slate-900 text-white" value="all">All Ratings</option>
+          <option className="bg-slate-900 text-white" value="8">8+ Masterpieces</option>
+          <option className="bg-slate-900 text-white" value="9">9+ Masterpieces</option>
+          <option className="bg-slate-900 text-white" value="10">10/10 Perfect</option>
         </select>
         <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
           ▼
@@ -88,9 +88,9 @@ export default function CommunityFilters() {
           onChange={(e) => updateFilters('genre', e.target.value)}
           className="bg-black/20 border border-white/10 text-white text-sm font-medium rounded-xl pl-4 pr-10 py-2.5 focus:ring-2 focus:ring-cinema-red focus:outline-none appearance-none cursor-pointer backdrop-blur-md hover:bg-white/5 transition-all shadow-lg"
         >
-          <option value="all">All Genres</option>
+          <option className="bg-slate-900 text-white" value="all">All Genres</option>
           {GENRES.map(g => (
-            <option key={g.id} value={g.id}>{g.name}</option>
+            <option className="bg-slate-900 text-white" key={g.id} value={g.id}>{g.name}</option>
           ))}
         </select>
         <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
