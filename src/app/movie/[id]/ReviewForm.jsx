@@ -3,12 +3,23 @@ import { useState } from 'react';
 import { saveReview, deleteReview } from '@/app/actions/dbActions';
 import { useRouter } from 'next/navigation';
 
+const MOOD_OPTIONS = [
+  "Emotionally Destroyed", "Peak Cinema", "Midnight Loneliness", 
+  "Popcorn Chaos", "Philosophical Spiral", "Feel Good", 
+  "Mind Bending", "Pure Adrenaline", "Visually Stunning"
+];
+
 export default function ReviewForm({ movieId, movieTitle, posterPath, genreIds, existingReview, onCancel, onSuccess }) {
   const [rating, setRating] = useState(existingReview?.rating || 10);
   const [reviewText, setReviewText] = useState(existingReview?.review_text || '');
+  const [moods, setMoods] = useState(existingReview?.mood_tags || []);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const router = useRouter();
+
+  const toggleMood = (mood) => {
+    setMoods(prev => prev.includes(mood) ? prev.filter(m => m !== mood) : [...prev, mood]);
+  };
 
   const handleSave = async (e) => {
     e.preventDefault();
@@ -21,6 +32,7 @@ export default function ReviewForm({ movieId, movieTitle, posterPath, genreIds, 
         movie_title: movieTitle,
         poster_path: posterPath,
         genre_ids: genreIds,
+        mood_tags: moods,
         rating: Number(rating),
         review_text: reviewText
       });
@@ -113,6 +125,22 @@ export default function ReviewForm({ movieId, movieTitle, posterPath, genreIds, 
             placeholder={`What did you think of ${movieTitle}?`}
             required
           />
+        </div>
+
+        <div className="space-y-3">
+          <label className="block text-sm font-bold text-slate-300 uppercase tracking-wider">How did it make you feel?</label>
+          <div className="flex flex-wrap gap-2">
+            {MOOD_OPTIONS.map(mood => (
+              <button
+                key={mood}
+                type="button"
+                onClick={() => toggleMood(mood)}
+                className={`px-4 py-1.5 rounded-full text-sm font-bold transition-all ${moods.includes(mood) ? 'bg-cinema-red text-white shadow-lg shadow-cinema-red/20 border border-cinema-red' : 'bg-white/5 text-slate-400 hover:bg-white/10 hover:text-white border border-white/10'}`}
+              >
+                {mood}
+              </button>
+            ))}
+          </div>
         </div>
 
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 pt-4">
