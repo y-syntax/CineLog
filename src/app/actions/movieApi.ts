@@ -21,14 +21,11 @@ export async function getMovieDetails(id: string | number) {
 }
 
 export async function getDiscoveryMovies() {
-  // To get a mix of "Classics" and "Surprises":
-  // We'll pick a random page from the first 500 pages of discovery
-  const randomPage = Math.floor(Math.random() * 500) + 1;
-  const sortOptions = ["popularity.desc", "revenue.desc", "vote_average.desc", "primary_release_date.desc"];
-  const randomSort = sortOptions[Math.floor(Math.random() * sortOptions.length)];
+  // Fetch popular movies to avoid obscure titles. Select a random page 1-5 for fresh variety.
+  const randomPage = Math.floor(Math.random() * 5) + 1;
 
   const res = await fetch(
-    `${TMDB_BASE_URL}/discover/movie?api_key=${TMDB_API_KEY}&page=${randomPage}&sort_by=${randomSort}&include_adult=false`
+    `${TMDB_BASE_URL}/discover/movie?api_key=${TMDB_API_KEY}&page=${randomPage}&sort_by=popularity.desc&vote_count.gte=200&include_adult=false`
   );
   
   if (!res.ok) throw new Error("Failed to fetch discovery movies");

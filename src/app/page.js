@@ -137,8 +137,12 @@ export default async function HomePage({ searchParams }) {
         {!query && (
           <section className="space-y-6 pt-12 border-t border-white/5">
             <div className="flex items-center justify-between">
-              <h2 className="text-2xl font-heading font-bold text-white">Top Picks For You</h2>
-              <span className="text-[10px] uppercase tracking-widest font-bold text-slate-500">Auto-generated</span>
+              <h2 className="text-2xl font-heading font-bold text-white">
+                {user ? "Popular Picks For You" : "Trending Movies"}
+              </h2>
+              <span className="text-[10px] uppercase tracking-widest font-bold text-slate-500">
+                {user ? "Tailored by exclusions" : "Popular on TMDB"}
+              </span>
             </div>
             {discoveryMovies.length > 0 ? (
               <AutoScroller movies={discoveryMovies} />

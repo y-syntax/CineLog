@@ -2,6 +2,22 @@ import { getMovieDetails } from '@/app/actions/movieApi';
 import { getReviewByMovieId, getAllReviewsForMovie } from '@/app/actions/dbActions';
 import ReviewsSection from './ReviewsSection';
 
+export async function generateMetadata({ params }) {
+  const { id } = await params;
+  try {
+    const movie = await getMovieDetails(id);
+    return {
+      title: `${movie.title} | CineLog`,
+      description: movie.overview || `Review and track ${movie.title} on CineLog.`,
+    };
+  } catch (err) {
+    console.error("generateMetadata error:", err);
+    return {
+      title: "Movie | CineLog",
+    };
+  }
+}
+
 export default async function MoviePage({ params }) {
   const { id } = await params;
   let movie, existingReview, allReviews = [];

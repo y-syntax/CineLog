@@ -3,6 +3,8 @@ import Link from 'next/link';
 import { createClient } from '@/utils/supabase/server';
 import { logout } from '@/app/actions/authActions';
 import { Poppins, Inter } from 'next/font/google';
+import fs from 'fs';
+import path from 'path';
 
 const poppins = Poppins({
   subsets: ['latin'],
@@ -23,6 +25,7 @@ export const metadata = {
 export default async function RootLayout({ children }) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
+  const logoExists = fs.existsSync(path.join(process.cwd(), 'public', 'logo.png'));
 
   return (
     <html lang="en" className={`dark ${poppins.variable} ${inter.variable}`}>
@@ -33,8 +36,12 @@ export default async function RootLayout({ children }) {
         <nav className="fixed top-0 w-full z-50 glass border-b border-white/5">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex justify-between items-center h-20">
-              <Link href="/" className="text-2xl md:text-3xl font-heading font-extrabold tracking-tighter text-white hover:opacity-80 transition-opacity">
-                Cine<span className="text-cinema-red">Log</span>
+              <Link href="/" className="flex items-center gap-2 text-2xl md:text-3xl font-heading font-extrabold tracking-tighter text-white hover:opacity-80 transition-opacity">
+                {logoExists ? (
+                  <img src="/logo.png" alt="CineLog Logo" className="h-8 md:h-10 w-auto object-contain" />
+                ) : (
+                  <>Cine<span className="text-cinema-red">Log</span></>
+                )}
               </Link>
               
               {/* Desktop Menu */}
