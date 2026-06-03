@@ -212,6 +212,18 @@ export async function getJournalData() {
     const { data: userData } = await supabase.auth.getUser();
     if (!userData?.user) return null;
 
+    // Fetch user profile from database profiles table for actual full_name
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("full_name")
+      .eq("id", userData.user.id)
+      .maybeSingle();
+
+    const userProfile = {
+      full_name: profile?.full_name || userData.user.user_metadata?.full_name || 'User',
+      avatar_url: userData.user.user_metadata?.avatar_url
+    };
+
     const { data: reviews, error } = await supabase
       .from("reviews")
       .select(`*`)
@@ -221,7 +233,7 @@ export async function getJournalData() {
     if (error) throw new Error(error.message);
 
     if (!reviews || reviews.length === 0) {
-      return { reviews: [], stats: null, favoriteReview: null, recentMoods: [], userProfile: userData.user.user_metadata };
+      return { reviews: [], stats: null, favoriteReview: null, recentMoods: [], userProfile };
     }
 
     // Calculate Stats
@@ -304,7 +316,7 @@ export async function getJournalData() {
       },
       favoriteReview,
       recentMoods,
-      userProfile: userData.user.user_metadata
+      userProfile
     };
 
   } catch (err) {

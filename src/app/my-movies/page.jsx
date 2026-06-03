@@ -17,7 +17,7 @@ export default async function MyMoviesPage() {
   }
 
   const { reviews, stats, favoriteReview, recentMoods, userProfile } = journalData;
-  const avatarUrl = userProfile?.avatar_url || `https://ui-avatars.com/api/?name=${userProfile?.full_name || 'User'}&background=E50914&color=fff&size=128&bold=true`;
+  const avatarUrl = userProfile?.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(userProfile?.full_name || 'User')}&background=E50914&color=fff&size=128&bold=true`;
 
   if (reviews.length === 0) {
     return (
